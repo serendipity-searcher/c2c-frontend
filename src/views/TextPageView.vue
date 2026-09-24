@@ -32,11 +32,13 @@ const OUTLINES = {
   },
 }
 
-const paragraphs = (text) =>
+const lines = (text) =>
   text
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)
+
+const oneParagraph = (text) => lines(text).join(' ')
 
 const title = computed(() => tOrNull(OUTLINES[props.section]?.title))
 
@@ -68,17 +70,11 @@ const blocks = computed(() =>
         v-else-if="block.as === 'credits'"
         class="flex flex-col gap-3 pt-4 border-t border-line text-[0.72rem] text-fg-muted leading-[1.6]"
       >
-        <p v-for="(line, i) in paragraphs(block.text)" :key="i">{{ line }}</p>
+        <p v-for="(line, i) in lines(block.text)" :key="i">{{ line }}</p>
       </div>
-      <div v-else class="flex flex-col gap-3">
-        <p
-          v-for="(line, i) in paragraphs(block.text)"
-          :key="i"
-          class="text-[0.85rem] text-fg-muted leading-[1.6]"
-        >
-          {{ line }}
-        </p>
-      </div>
+      <p v-else class="text-[0.85rem] text-fg-muted leading-[1.6]">
+        {{ oneParagraph(block.text) }}
+      </p>
     </template>
 
     <RouterLink to="/" class="text-[0.75rem] underline underline-offset-[3px] pt-2">
