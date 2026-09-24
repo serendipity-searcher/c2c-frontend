@@ -1,0 +1,266 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('./fonts/HankenGrotesk.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bradford LL';
+  src:
+    url('./fonts/BradfordLLEduWeb-Medium.woff2') format('woff2'),
+    url('./fonts/BradfordLLEduWeb-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@property --bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+
+@property --fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1c1c1c;
+}
+
+@property --fg-muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #6b6b6b;
+}
+
+@property --line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d9d9d9;
+}
+
+@property --accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3f4142;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+}
+
+@layer base {
+  :root {
+    --bg: #ffffff;
+    --fg: #1c1c1c;
+    --fg-muted: #6b6b6b;
+    --line: #d9d9d9;
+    --accent: #3f4142;
+    --page-height: calc(100dvh - env(safe-area-inset-bottom, 0px));
+    --band: calc(var(--page-height) / 100);
+    --stage-top: calc(var(--band) * 5);
+    --slot-gap: calc(var(--comment-size) * var(--comment-leading));
+    --slot-height: calc((var(--band) * 50 - var(--slot-gap)) / 2);
+    --stage-height: calc(var(--stage-top) + 2 * var(--slot-height) + var(--slot-gap));
+    --hints-gap: calc(var(--band) * 10);
+    --hints-height: calc(var(--band) * 30);
+    --footer-height: calc(var(--band) * 5);
+    --gutter: 2.5vw;
+    --page-gutter: 1.25rem;
+    --flag-gutter: 2rem;
+    --comment-width: calc(100vw - 2 * var(--gutter) - var(--flag-gutter));
+    --bar-height: 3rem;
+    --comment-size: 1.05rem;
+    --comment-leading: 1.5;
+    --slot-lines: 6;
+    --kb-reported: 0px;
+    --kb: calc(var(--kb-reported) + min(var(--kb-reported), env(safe-area-inset-bottom, 0px)));
+    --kb-shrink: 0px;
+    --inset-bottom: max(calc(env(safe-area-inset-bottom, 0px) - var(--kb) - var(--kb-shrink)), 0px);
+    --font-ui: 'Hanken Grotesk', 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+    --font-comment: 'Bradford LL', Georgia, 'Times New Roman', serif;
+    --invert-duration: 0.8s;
+    --invert-transition:
+      --bg var(--invert-duration) ease, --fg var(--invert-duration) ease,
+      --fg-muted var(--invert-duration) ease, --line var(--invert-duration) ease,
+      --accent var(--invert-duration) ease;
+  }
+
+  .inverted {
+    --bg: #3f4142;
+    --fg: #f2f2ee;
+    --fg-muted: #b8bdb9;
+    --line: #5a625f;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  html {
+    -webkit-text-size-adjust: auto;
+    text-size-adjust: auto;
+  }
+
+  body {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+  }
+
+  #app {
+    height: calc(100dvh - var(--kb));
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  .app-root {
+    transition: var(--invert-transition);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--line);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  [tabindex='-1']:focus,
+  [tabindex='-1']:focus-visible {
+    outline: none;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  textarea {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    outline: none;
+    resize: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  textarea:focus,
+  textarea:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  ::placeholder {
+    color: revert;
+    opacity: revert;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  @media (max-width: 600px) {
+    html {
+      font-size: clamp(18px, max(1.125rem, min(4.62vw, 2.13vh)), min(24px, 2.85vh));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .comment-text {
+    font-family: var(--font-comment);
+    font-weight: 500;
+    font-size: var(--comment-size);
+    line-height: var(--comment-leading);
+    text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphenate-limit-chars: 6 3 3;
+    -webkit-hyphenate-limit-before: 3;
+    -webkit-hyphenate-limit-after: 3;
+    overflow-wrap: break-word;
+  }
+
+  .slot {
+    height: var(--slot-height);
+    flex: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slot + .slot {
+    margin-top: var(--slot-gap);
+  }
+
+  .slot-top {
+    justify-content: flex-end;
+  }
+
+  .comment-editor-box {
+    height: var(--slot-height);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .comment-editor {
+    max-height: var(--slot-height);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .comment-editor::-webkit-scrollbar {
+    display: none;
+  }
+
+  .comment-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    line-clamp: var(--slot-lines);
+    -webkit-line-clamp: var(--slot-lines);
+    overflow: hidden;
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.4s ease;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+}
