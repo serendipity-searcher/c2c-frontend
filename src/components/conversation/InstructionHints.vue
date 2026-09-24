@@ -7,7 +7,7 @@ defineEmits(['new'])
 
 <template>
   <div
-    class="shrink-0 h-(--hints-height) mt-(--hints-gap) flex flex-col items-center justify-center gap-4 px-(--gutter) text-center overflow-hidden"
+    class="shrink-0 h-(--hints-height) mt-(--hints-gap) flex flex-col items-center justify-center gap-[calc(0.72rem*1.6*1.5)] px-(--gutter) text-center overflow-hidden"
   >
     <p
       aria-hidden="true"

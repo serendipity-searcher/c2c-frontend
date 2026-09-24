@@ -66,7 +66,8 @@
     --page-height: calc(100dvh - env(safe-area-inset-bottom, 0px));
     --band: calc(var(--page-height) / 100);
     --stage-top: calc(var(--band) * 5);
-    --slot-gap: calc(var(--comment-size) * var(--comment-leading));
+    --slot-gap-lines: 1.5;
+    --slot-gap: calc(var(--comment-size) * var(--comment-leading) * var(--slot-gap-lines));
     --slot-height: calc((var(--band) * 50 - var(--slot-gap)) / 2);
     --stage-height: calc(var(--stage-top) + 2 * var(--slot-height) + var(--slot-gap));
     --hints-gap: calc(var(--band) * 10);

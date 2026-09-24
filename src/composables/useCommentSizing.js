@@ -85,9 +85,11 @@ export function useCommentSizing() {
     if (key === last) return
     last = key
 
-    const leading = parseFloat(getComputedStyle(root).getPropertyValue('--comment-leading')) || 1.5
+    const styles = getComputedStyle(root)
+    const leading = parseFloat(styles.getPropertyValue('--comment-leading')) || 1.5
+    const gapLines = parseFloat(styles.getPropertyValue('--slot-gap-lines')) || 1
 
-    const band = (size) => (pair - size * leading) / 2
+    const band = (size) => (pair - size * leading * gapLines) / 2
 
     let fits = MIN_SIZE
     let over = MAX_SIZE
@@ -103,7 +105,7 @@ export function useCommentSizing() {
       report([
         `REJECTED size=${size} over=${over}`,
         `viewport ${innerWidth}x${innerHeight} pair=${pair.toFixed(1)} col=${column.toFixed(1)}`,
-        `leading=${leading} band(${size})=${band(size).toFixed(1)} tallest=${tallest(size).toFixed(1)}`,
+        `leading=${leading} gap=${gapLines} band(${size})=${band(size).toFixed(1)} tallest=${tallest(size).toFixed(1)}`,
         `autosizing=${autosizing()} font=${getComputedStyle(blocks[0]).fontFamily}`,
       ])
       return
@@ -117,7 +119,7 @@ export function useCommentSizing() {
     report([
       `size=${size}px lines=${lines}`,
       `viewport ${innerWidth}x${innerHeight} pair=${pair.toFixed(1)} col=${column.toFixed(1)}`,
-      `leading=${leading} band=${band(size).toFixed(1)} tallest=${tallest(size).toFixed(1)}`,
+      `leading=${leading} gap=${gapLines} band=${band(size).toFixed(1)} tallest=${tallest(size).toFixed(1)}`,
       `autosizing=${autosizing()} font=${getComputedStyle(blocks[0]).fontFamily}`,
     ])
   }
