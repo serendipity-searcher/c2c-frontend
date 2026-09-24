@@ -121,7 +121,7 @@ defineExpose({ slotRect })
           >
             <p
               v-if="current.slots[name]"
-              class="comment-text comment-clamp pr-(--flag-gutter)"
+              class="comment-text comment-clamp"
               :lang="current.slots[name].language"
             >
               {{ current.slots[name].text }}
@@ -130,7 +130,7 @@ defineExpose({ slotRect })
         </template>
         <template v-else-if="display === 'live' && current">
           <div class="slot slot-top">
-            <p class="comment-text comment-clamp pr-(--flag-gutter) text-fg-muted">
+            <p class="comment-text comment-clamp text-fg-muted">
               {{ t('main.live_banner') }}
             </p>
           </div>

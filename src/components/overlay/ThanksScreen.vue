@@ -28,7 +28,6 @@ const rows = computed(() => {
       >
         <p
           v-if="row.text"
-          class="pr-(--flag-gutter)"
           :lang="row.lang"
           :class="row.comment ? 'comment-text' : 'text-[0.85rem] whitespace-pre-line'"
         >

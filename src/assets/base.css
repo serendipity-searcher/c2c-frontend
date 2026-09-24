@@ -73,10 +73,9 @@
     --hints-gap: calc(var(--band) * 10);
     --hints-height: calc(var(--band) * 30);
     --footer-height: calc(var(--band) * 5);
-    --gutter: 2.5vw;
+    --gutter: 3.75vw;
     --page-gutter: 1.25rem;
-    --flag-gutter: 2rem;
-    --comment-width: calc(100vw - 2 * var(--gutter) - var(--flag-gutter));
+    --comment-width: calc(100vw - 2 * var(--gutter));
     --bar-height: 3rem;
     --comment-size: 1.05rem;
     --comment-leading: 1.5;

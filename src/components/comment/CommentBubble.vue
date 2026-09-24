@@ -40,11 +40,11 @@ const textHidden = computed(() => interactive.value || flagged.value)
       @click="$emit('tap', comment, $event)"
     ></button>
 
-    <div class="relative pr-(--flag-gutter)">
+    <div class="relative">
       <button
         v-if="flaggable && interactive"
         type="button"
-        class="absolute top-[-0.9rem] -right-2 z-20 p-[0.85rem] text-fg-muted"
+        class="absolute top-[calc(-0.9rem-var(--comment-size)*var(--comment-leading)*0.5)] right-[-1.1rem] z-20 p-[0.85rem] text-fg-muted"
         :aria-label="t('main.flag_button')"
         @click.stop="$emit('flag', comment, $event)"
       >
