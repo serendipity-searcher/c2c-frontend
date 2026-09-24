@@ -62,7 +62,7 @@ watch(
       <p
         v-if="offline"
         role="status"
-        class="fixed top-0 left-0 right-0 py-[0.4rem] px-4 text-center text-[0.62rem] text-fg-muted bg-bg border-b border-line"
+        class="fixed top-0 left-0 right-0 py-[0.4rem] px-4 text-center text-[0.62rem] text-fg-muted bg-bg"
       >
         {{ t('error.connection_lost') }}
       </p>

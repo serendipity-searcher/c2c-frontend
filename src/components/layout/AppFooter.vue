@@ -24,7 +24,7 @@ function onPickerFocusOut(event) {
 
 <template>
   <footer
-    class="relative z-1 shrink-0 grid grid-cols-[1fr_auto_1fr] items-center h-[calc(var(--footer-height)+var(--inset-bottom))] px-(--gutter) pb-(--inset-bottom) border-t border-line"
+    class="relative z-1 shrink-0 grid grid-cols-[1fr_auto_1fr] items-center h-[calc(var(--footer-height)+var(--inset-bottom))] px-(--gutter) pb-(--inset-bottom)"
   >
     <RouterLink to="/about" :class="[FOOTER_ITEM, 'justify-self-start']">
       {{ t('main.about') }}
