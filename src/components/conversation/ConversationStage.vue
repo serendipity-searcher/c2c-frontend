@@ -110,8 +110,11 @@ defineExpose({ slotRect })
       </div>
     </template>
 
-    <Transition v-else name="interrupt" @enter="revive" @leave="retire">
-      <div :key="current?.ID" class="absolute inset-0 flex flex-col pt-(--stage-top) px-(--gutter)">
+    <Transition v-else name="interrupt" :duration="0" @enter="revive" @leave="retire">
+      <div
+        :key="current?.ID"
+        class="interrupt-arc absolute inset-0 flex flex-col pt-(--stage-top) px-(--gutter)"
+      >
         <template v-if="display === 'starter' && current">
           <div
             v-for="name in SLOTS"
@@ -166,13 +169,34 @@ defineExpose({ slotRect })
   filter: blur(8px);
 }
 
-.interrupt-enter-active,
-.interrupt-leave-active {
-  transition: opacity 0.8s ease;
+/* The second and third phases of the interrupt arc (see `invert-arc` in
+   base.css, which runs the first and fourth on the root over the same clock):
+   the text waits out the inversion, fades in, and fades out again before the
+   frame ends. At the backend's 20 s frame each quarter is 5 s.
+
+   It peaks at the halfway mark and starts leaving immediately — there is no
+   plateau, because the four phases were specified as filling the frame exactly.
+
+   `:duration="0"` on the Transition is what keeps this the only clock: Vue
+   would otherwise read the 20 s animation off the element as the leave
+   duration and hold the outgoing interrupt on screen for a second frame. By the
+   time it unmounts the arc has already taken it to zero, so there is nothing
+   left to fade. */
+@keyframes interrupt-arc {
+  0%,
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75%,
+  100% {
+    opacity: 0;
+  }
 }
 
-.interrupt-enter-from,
-.interrupt-leave-to {
-  opacity: 0;
+.interrupt-arc {
+  animation: interrupt-arc var(--interrupt-duration, 20s) ease both;
 }
 </style>

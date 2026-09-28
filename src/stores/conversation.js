@@ -10,11 +10,18 @@ export const otherSlot = (slot) => (slot === 'top' ? 'bottom' : 'top')
 
 const INTERRUPT_TYPES = new Set(['new_comment', 'conversation_starter'])
 
+// Used only if a frame arrives without one; the backend's own value is 20.
+const DEFAULT_INTERRUPT_SECONDS = 20
+
 export const useConversationStore = defineStore('conversation', () => {
   const slots = ref({ top: null, bottom: null })
   const current = ref(null)
   const display = ref('comment') // 'comment' | 'starter' | 'live'
   const status = ref('closed') // 'connecting' | 'open' | 'closed'
+  // How long the interrupt on screen has before the next frame replaces it, which
+  // is the whole length of its four-phase arc (base.css). The backend sends it as
+  // `display_seconds` on every frame; only an interrupt's is read.
+  const interruptSeconds = ref(DEFAULT_INTERRUPT_SECONDS)
 
   const inverted = computed(() => display.value !== 'comment')
 
@@ -39,6 +46,7 @@ export const useConversationStore = defineStore('conversation', () => {
     slots.value = { top: null, bottom: null }
     current.value = null
     display.value = 'comment'
+    interruptSeconds.value = DEFAULT_INTERRUPT_SECONDS
     pending = null
   }
 
@@ -51,7 +59,8 @@ export const useConversationStore = defineStore('conversation', () => {
     pending = frame
   }
 
-  function apply({ type, payload }) {
+  function apply({ type, payload, display_seconds: seconds }) {
+    if (INTERRUPT_TYPES.has(type) && seconds > 0) interruptSeconds.value = seconds
     switch (type) {
       case 'comment':
         slots.value = { ...slots.value, [payload.slot]: payload }
@@ -114,6 +123,7 @@ export const useConversationStore = defineStore('conversation', () => {
     display,
     status,
     inverted,
+    interruptSeconds,
     frozen,
     initialize,
     freeze,
