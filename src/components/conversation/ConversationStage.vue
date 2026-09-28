@@ -150,14 +150,14 @@ defineExpose({ slotRect })
 <style scoped>
 .rotate-enter-active {
   transition:
-    opacity 1.5s ease,
-    filter 1.5s ease;
+    opacity 10s ease,
+    filter 10s ease;
 }
 
 .rotate-leave-active {
   transition:
-    opacity 1.2s ease,
-    filter 1.2s ease;
+    opacity 10s ease,
+    filter 10s ease;
 }
 
 .rotate-enter-from,

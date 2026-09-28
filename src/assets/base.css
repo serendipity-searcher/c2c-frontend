@@ -93,6 +93,19 @@
       --accent var(--invert-duration) ease;
   }
 
+  /* The side margin is a share of the screen only on a phone, where 3.75% is
+     the handful of pixels the design asks for. Past the 600px boundary the same
+     share walks the comment column into the middle of a window and keeps
+     growing, so it becomes a flat text-relative 1em. It is rem, not em: the
+     token is read on the stage, the footer, the hints and every overlay box, and
+     an em would resolve against each one's own font-size — including the sizer's
+     probe, which measures --comment-width. */
+  @media (min-width: 601px) {
+    :root {
+      --gutter: 1rem;
+    }
+  }
+
   .inverted {
     --bg: #3f4142;
     --fg: #f2f2ee;
