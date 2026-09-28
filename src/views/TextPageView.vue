@@ -38,7 +38,12 @@ const lines = (text) =>
     .map((line) => line.trim())
     .filter(Boolean)
 
-const oneParagraph = (text) => lines(text).join(' ')
+const keepBreaks = (text) =>
+  text
+    .split('\n')
+    .map((line) => line.trim())
+    .join('\n')
+    .trim()
 
 const title = computed(() => tOrNull(OUTLINES[props.section]?.title))
 
@@ -72,8 +77,8 @@ const blocks = computed(() =>
       >
         <p v-for="(line, i) in lines(block.text)" :key="i">{{ line }}</p>
       </div>
-      <p v-else class="text-[0.85rem] text-fg-muted leading-[1.6]">
-        {{ oneParagraph(block.text) }}
+      <p v-else class="text-[0.85rem] text-fg-muted leading-[1.6] whitespace-pre-line">
+        {{ keepBreaks(block.text) }}
       </p>
     </template>
 
