@@ -89,29 +89,35 @@ defineExpose({ slotRect })
       </template>
     </p>
 
-    <template v-if="display === 'comment'">
+    <Transition name="stage" @enter="revive" @leave="retire">
       <div
-        v-for="name in SLOTS"
-        :key="name"
-        :ref="(el) => (slotEls[name] = el)"
-        class="slot"
-        :class="{ 'slot-top': name === 'top' }"
+        v-if="display === 'comment'"
+        class="stage-slots absolute inset-0 flex flex-col pt-(--stage-top) px-(--gutter)"
       >
-        <Transition name="rotate" mode="out-in" @enter="revive" @leave="retire">
-          <CommentBubble
-            v-if="slots[name]"
-            :key="slots[name].ID"
-            :comment="slots[name]"
-            :slot-name="name"
-            @tap="(comment, event) => relay('tap', comment, event, name)"
-            @flag="(comment, event) => relay('flag', comment, event, name)"
-          />
-        </Transition>
+        <div
+          v-for="name in SLOTS"
+          :key="name"
+          :ref="(el) => (slotEls[name] = el)"
+          class="slot"
+          :class="{ 'slot-top': name === 'top' }"
+        >
+          <Transition name="rotate" mode="out-in" @enter="revive" @leave="retire">
+            <CommentBubble
+              v-if="slots[name]"
+              :key="slots[name].ID"
+              :comment="slots[name]"
+              :slot-name="name"
+              @tap="(comment, event) => relay('tap', comment, event, name)"
+              @flag="(comment, event) => relay('flag', comment, event, name)"
+            />
+          </Transition>
+        </div>
       </div>
-    </template>
+    </Transition>
 
-    <Transition v-else name="interrupt" :duration="0" @enter="revive" @leave="retire">
+    <Transition name="interrupt" :duration="0" @enter="revive" @leave="retire">
       <div
+        v-if="display !== 'comment'"
         :key="current?.ID"
         class="interrupt-arc absolute inset-0 flex flex-col pt-(--stage-top) px-(--gutter)"
       >
@@ -151,6 +157,33 @@ defineExpose({ slotRect })
 </template>
 
 <style scoped>
+/* The conversation as a whole leaving and returning around an interrupt.
+
+   It is the pair that fades, not each bubble: the two comments go together, and
+   a comment that is staying put must not also run its own entrance when the
+   stage comes back. The slots are wrapped and positioned rather than left in
+   flow so that the outgoing pair and the incoming interrupt can overlap for the
+   five seconds they share — both are `absolute inset-0` over a stage of fixed
+   height, which is the same trick the interrupt screen already used, and the
+   bands measure the same either way.
+
+   Out over a quarter of the frame, which is the invert's first phase
+   (`invert-arc`, base.css): the page darkens as the comments leave, and the
+   two stay in step if `display_seconds` ever changes. Back in over 10s, the
+   same as a single comment's own entrance below. */
+.stage-enter-active {
+  transition: opacity 10s ease;
+}
+
+.stage-leave-active {
+  transition: opacity calc(var(--interrupt-duration, 20s) / 4) ease;
+}
+
+.stage-enter-from,
+.stage-leave-to {
+  opacity: 0;
+}
+
 .rotate-enter-active {
   transition:
     opacity 10s ease,
