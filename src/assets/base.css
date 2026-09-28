@@ -48,6 +48,12 @@
   initial-value: #3f4142;
 }
 
+@property --svg-invert {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-fg: var(--fg);
@@ -63,6 +69,7 @@
     --fg-muted: #6b6b6b;
     --line: #d9d9d9;
     --accent: #3f4142;
+    --svg-invert: 0;
     --page-height: calc(100dvh - env(safe-area-inset-bottom, 0px));
     --band: calc(var(--page-height) / 100);
     --stage-top: calc(var(--band) * 5);
@@ -90,7 +97,7 @@
     --invert-transition:
       --bg var(--invert-duration) ease, --fg var(--invert-duration) ease,
       --fg-muted var(--invert-duration) ease, --line var(--invert-duration) ease,
-      --accent var(--invert-duration) ease;
+      --accent var(--invert-duration) ease, --svg-invert var(--invert-duration) ease;
   }
 
   /* The side margin is a share of the screen only on a phone, where 3.75% is
@@ -111,6 +118,7 @@
     --fg: #f2f2ee;
     --fg-muted: #b8bdb9;
     --line: #5a625f;
+    --svg-invert: 1;
   }
 
   @keyframes invert-arc {
@@ -119,6 +127,7 @@
       --fg: #1c1c1c;
       --fg-muted: #6b6b6b;
       --line: #d9d9d9;
+      --svg-invert: 0;
     }
     25%,
     75% {
@@ -126,12 +135,14 @@
       --fg: #f2f2ee;
       --fg-muted: #b8bdb9;
       --line: #5a625f;
+      --svg-invert: 1;
     }
     100% {
       --bg: #ffffff;
       --fg: #1c1c1c;
       --fg-muted: #6b6b6b;
       --line: #d9d9d9;
+      --svg-invert: 0;
     }
   }
 

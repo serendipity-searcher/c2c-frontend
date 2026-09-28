@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { images, loadImages } from '@/api/images'
 import { useT, useTOrNull } from '@/i18n'
 
 const props = defineProps({
@@ -17,7 +18,9 @@ const OUTLINES = {
       { as: 'h2', key: 'aboutpage.how_it_works' },
       { as: 'h3', key: 'aboutpage.comment_to_connections' },
       { as: 'body', key: 'aboutpage.connections' },
+      { as: 'image', key: 'c2cillustrations1.svg' },
       { as: 'h3', key: 'aboutpage.connections_to_conversations' },
+      { as: 'image', key: 'c2cillustrations2.svg' },
       { as: 'body', key: 'aboutpage.conversations' },
       { as: 'body', key: 'aboutpage.bubbles' },
       { as: 'credits', key: 'aboutpage.credits' },
@@ -49,18 +52,26 @@ const title = computed(() => tOrNull(OUTLINES[props.section]?.title))
 
 const blocks = computed(() =>
   (OUTLINES[props.section]?.blocks ?? [])
-    .map((block) => ({ ...block, text: tOrNull(block.key) }))
-    .filter((block) => block.text),
+    .map((block) =>
+      block.as === 'image'
+        ? { ...block, svg: images.value[block.key] }
+        : { ...block, text: tOrNull(block.key) },
+    )
+    .filter((block) => block.svg || block.text),
 )
+
+loadImages()
 </script>
 
 <template>
   <main class="h-full overflow-y-auto flex flex-col gap-6 pt-18 pb-12 px-(--page-gutter)">
-    <div class="fixed inset-x-0 top-0 z-20 flex justify-end bg-bg">
-      <RouterLink to="/" class="py-4 px-5 text-[0.9rem]" :aria-label="t('a11y.close')">
-        <span aria-hidden="true">✕</span>
-      </RouterLink>
-    </div>
+    <RouterLink
+      to="/"
+      class="fixed top-0 right-0 z-20 py-4 px-5 text-[0.9rem]"
+      :aria-label="t('a11y.close')"
+    >
+      <span aria-hidden="true">✕</span>
+    </RouterLink>
 
     <h1 v-if="title" class="text-[1.1rem] font-semibold">{{ title }}</h1>
 
@@ -77,6 +88,11 @@ const blocks = computed(() =>
       >
         <p v-for="(line, i) in lines(block.text)" :key="i">{{ line }}</p>
       </div>
+      <div
+        v-else-if="block.as === 'image'"
+        class="w-full max-w-sm [filter:invert(var(--svg-invert))] [&>svg]:w-full [&>svg]:h-auto"
+        v-html="block.svg"
+      />
       <p v-else class="text-[0.85rem] text-fg-muted leading-[1.6] whitespace-pre-line">
         {{ keepBreaks(block.text) }}
       </p>
