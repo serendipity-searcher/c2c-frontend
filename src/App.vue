@@ -17,8 +17,6 @@ watchEffect(() => {
 
 const inverted = computed(() => conversation.inverted && route.name !== 'screen')
 
-// The length of the interrupt arc, read by the keyframes in base.css and by the
-// stage's own half of it. It is set on the root so both inherit one value.
 const arc = computed(() => ({ '--interrupt-duration': `${conversation.interruptSeconds}s` }))
 
 conversation.initialize()

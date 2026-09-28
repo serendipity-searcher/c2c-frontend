@@ -157,20 +157,6 @@ defineExpose({ slotRect })
 </template>
 
 <style scoped>
-/* The conversation as a whole leaving and returning around an interrupt.
-
-   It is the pair that fades, not each bubble: the two comments go together, and
-   a comment that is staying put must not also run its own entrance when the
-   stage comes back. The slots are wrapped and positioned rather than left in
-   flow so that the outgoing pair and the incoming interrupt can overlap for the
-   five seconds they share — both are `absolute inset-0` over a stage of fixed
-   height, which is the same trick the interrupt screen already used, and the
-   bands measure the same either way.
-
-   Out over a quarter of the frame, which is the invert's first phase
-   (`invert-arc`, base.css): the page darkens as the comments leave, and the
-   two stay in step if `display_seconds` ever changes. Back in over 10s, the
-   same as a single comment's own entrance below. */
 .stage-enter-active {
   transition: opacity 10s ease;
 }
@@ -202,19 +188,6 @@ defineExpose({ slotRect })
   filter: blur(8px);
 }
 
-/* The second and third phases of the interrupt arc (see `invert-arc` in
-   base.css, which runs the first and fourth on the root over the same clock):
-   the text waits out the inversion, fades in, and fades out again before the
-   frame ends. At the backend's 20 s frame each quarter is 5 s.
-
-   It peaks at the halfway mark and starts leaving immediately — there is no
-   plateau, because the four phases were specified as filling the frame exactly.
-
-   `:duration="0"` on the Transition is what keeps this the only clock: Vue
-   would otherwise read the 20 s animation off the element as the leave
-   duration and hold the outgoing interrupt on screen for a second frame. By the
-   time it unmounts the arc has already taken it to zero, so there is nothing
-   left to fade. */
 @keyframes interrupt-arc {
   0%,
   25% {

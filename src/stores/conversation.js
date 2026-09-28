@@ -10,7 +10,6 @@ export const otherSlot = (slot) => (slot === 'top' ? 'bottom' : 'top')
 
 const INTERRUPT_TYPES = new Set(['new_comment', 'conversation_starter'])
 
-// Used only if a frame arrives without one; the backend's own value is 20.
 const DEFAULT_INTERRUPT_SECONDS = 20
 
 export const useConversationStore = defineStore('conversation', () => {
@@ -18,9 +17,6 @@ export const useConversationStore = defineStore('conversation', () => {
   const current = ref(null)
   const display = ref('comment') // 'comment' | 'starter' | 'live'
   const status = ref('closed') // 'connecting' | 'open' | 'closed'
-  // How long the interrupt on screen has before the next frame replaces it, which
-  // is the whole length of its four-phase arc (base.css). The backend sends it as
-  // `display_seconds` on every frame; only an interrupt's is read.
   const interruptSeconds = ref(DEFAULT_INTERRUPT_SECONDS)
 
   const inverted = computed(() => display.value !== 'comment')

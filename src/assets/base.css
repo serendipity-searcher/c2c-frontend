@@ -113,23 +113,6 @@
     --line: #5a625f;
   }
 
-  /* An interrupt — a conversation starter or a live comment — runs a four-phase
-     arc across the single frame the backend gives it: the page inverts (a
-     quarter of the frame), the text fades in (a quarter), the text fades out (a
-     quarter), the page returns (a quarter). At the backend's 20 s frame that is
-     5 s each.
-
-     It is keyframes and not a Vue transition because two of the four phases run
-     while nothing is mounting or unmounting: the text has to start leaving, and
-     the page has to start turning back, *before* the next frame arrives. A
-     transition only runs on mount and unmount, so it cannot express either one.
-     The arc is a schedule laid over the frame instead, and `--interrupt-duration`
-     is that frame's own `display_seconds`, set on the root in `App.vue` — the
-     clock stays the backend's, as everywhere else.
-
-     The dark stops below are `.inverted`'s values and the light ones `:root`'s,
-     written out because keyframes interpolate values and cannot reference a rule
-     set. Change the palette in one place and change it here too. */
   @keyframes invert-arc {
     0% {
       --bg: #ffffff;
@@ -152,8 +135,6 @@
     }
   }
 
-  /* Scoped to the root on purpose: `.inverted` is also the thanks dialog's, and
-     that screen is held for its own 7.5 s, not for a frame. */
   .app-root.inverted {
     animation: invert-arc var(--interrupt-duration, 20s) ease both;
   }
@@ -254,11 +235,6 @@
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
     }
-
-    /* The interrupt arc is a schedule, not decoration. Collapsed to 0.01ms it
-       would run straight to its last keyframe, where the page is light again and
-       the text is already gone — a starter would never appear at all. It keeps
-       its length here and gives up only its easing. */
     .app-root.inverted,
     .interrupt-arc {
       animation-duration: var(--interrupt-duration, 20s) !important;
