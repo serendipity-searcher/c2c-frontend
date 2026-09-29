@@ -4,56 +4,28 @@ import { SLOTS, useConversationStore } from '@/stores/conversation'
 import { useT } from '@/i18n'
 
 const t = useT()
-const { slots, current, display } = storeToRefs(useConversationStore())
+const { slots, banner, interrupting } = storeToRefs(useConversationStore())
 </script>
 
 <template>
   <div class="relative h-full cursor-none overflow-hidden">
-    <Transition name="stage">
-      <div v-if="display === 'comment'" class="absolute inset-0 flex flex-col">
-        <div v-for="name in SLOTS" :key="name" class="half" :class="{ 'half-top': name === 'top' }">
-          <Transition name="rotate" mode="out-in">
-            <p
-              v-if="slots[name]"
-              :key="slots[name].ID"
-              class="wall-text"
-              :lang="slots[name].language"
-            >
-              {{ slots[name].text }}
-            </p>
-          </Transition>
-        </div>
-      </div>
-    </Transition>
-
-    <Transition name="interrupt" :duration="0">
-      <div
-        v-if="display !== 'comment'"
-        :key="current?.ID"
-        class="interrupt-arc absolute inset-0 flex flex-col"
-      >
-        <template v-if="display === 'starter' && current">
-          <div
-            v-for="name in SLOTS"
-            :key="name"
-            class="half"
-            :class="{ 'half-top': name === 'top' }"
+    <div class="absolute inset-0 flex flex-col">
+      <div v-for="name in SLOTS" :key="name" class="half" :class="{ 'half-top': name === 'top' }">
+        <Transition :name="interrupting ? 'swap' : 'rotate'" mode="out-in">
+          <p v-if="name === 'top' && banner" key="banner" class="wall-text text-fg-muted">
+            {{ t('main.live_banner') }}
+          </p>
+          <p
+            v-else-if="slots[name]"
+            :key="slots[name].ID"
+            class="wall-text"
+            :lang="slots[name].language"
           >
-            <p v-if="current.slots[name]" class="wall-text" :lang="current.slots[name].language">
-              {{ current.slots[name].text }}
-            </p>
-          </div>
-        </template>
-        <template v-else-if="display === 'live' && current">
-          <div class="half half-top">
-            <p class="wall-text text-fg-muted">{{ t('main.live_banner') }}</p>
-          </div>
-          <div class="half">
-            <p class="wall-text" :lang="current.language">{{ current.text }}</p>
-          </div>
-        </template>
+            {{ slots[name].text }}
+          </p>
+        </Transition>
       </div>
-    </Transition>
+    </div>
   </div>
 </template>
 
@@ -88,25 +60,7 @@ const { slots, current, display } = storeToRefs(useConversationStore())
   overflow: hidden;
 }
 
-.stage-enter-active {
-  transition: opacity 10s ease;
-}
-
-.stage-leave-active {
-  transition: opacity calc(var(--interrupt-duration, 20s) / 4) ease;
-}
-
-.stage-enter-from,
-.stage-leave-to {
-  opacity: 0;
-}
-
-.rotate-enter-active {
-  transition:
-    opacity 10s ease,
-    filter 10s ease;
-}
-
+.rotate-enter-active,
 .rotate-leave-active {
   transition:
     opacity 10s ease,
@@ -119,21 +73,16 @@ const { slots, current, display } = storeToRefs(useConversationStore())
   filter: blur(0.8vh);
 }
 
-@keyframes interrupt-arc {
-  0%,
-  25% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  75%,
-  100% {
-    opacity: 0;
-  }
+.swap-enter-active,
+.swap-leave-active {
+  transition:
+    opacity var(--interrupt-fade) ease,
+    filter var(--interrupt-fade) ease;
 }
 
-.interrupt-arc {
-  animation: interrupt-arc var(--interrupt-duration, 20s) ease both;
+.swap-enter-from,
+.swap-leave-to {
+  opacity: 0;
+  filter: blur(0.8vh);
 }
 </style>

@@ -7,11 +7,13 @@ const {
   slotName = 'bottom',
   frozen = false,
   flaggable = true,
+  tappable = true,
 } = defineProps({
   comment: { type: Object, required: true },
   slotName: { type: String, default: 'bottom' },
   frozen: { type: Boolean, default: false },
   flaggable: { type: Boolean, default: true },
+  tappable: { type: Boolean, default: true },
 })
 
 defineEmits(['tap', 'flag'])
@@ -19,7 +21,7 @@ defineEmits(['tap', 'flag'])
 const t = useT()
 
 const flagged = computed(() => comment?.is_flagged === true)
-const interactive = computed(() => !flagged.value && !frozen)
+const interactive = computed(() => tappable && !flagged.value && !frozen)
 const textClass = computed(() =>
   flagged.value ? 'blur-[5px] select-none' : frozen ? 'blur-[1px]' : '',
 )

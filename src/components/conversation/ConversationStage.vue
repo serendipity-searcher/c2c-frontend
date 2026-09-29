@@ -10,27 +10,20 @@ const t = useT()
 
 const conversation = useConversationStore()
 const ui = useUiStore()
-const { slots, current, display } = storeToRefs(conversation)
+const { slots, banner, interrupting } = storeToRefs(conversation)
 const emit = defineEmits(['tap', 'flag'])
 
 const slotEls = {}
 let keyboardHeld = false
 
 const announcement = computed(() => {
-  const statement = current.value
-  if (!statement) return []
-  if (display.value === 'starter') {
-    return SLOTS.map((name) => statement.slots[name])
-      .filter(Boolean)
-      .map(({ text, language }) => ({ text, lang: language }))
+  if (!interrupting.value) return []
+  const spoken = banner.value ? [{ text: `${t('main.live_banner')}:` }] : []
+  for (const name of SLOTS) {
+    const statement = slots.value[name]
+    if (statement) spoken.push({ text: statement.text, lang: statement.language })
   }
-  if (display.value === 'live') {
-    return [
-      { text: `${t('main.live_banner')}:` },
-      { text: statement.text, lang: statement.language },
-    ]
-  }
-  return []
+  return spoken
 })
 
 function onFocusIn(event) {
@@ -89,93 +82,43 @@ defineExpose({ slotRect })
       </template>
     </p>
 
-    <Transition name="stage" @enter="revive" @leave="retire">
-      <div
-        v-if="display === 'comment'"
-        class="stage-slots absolute inset-0 flex flex-col pt-(--stage-top) px-(--gutter)"
+    <div
+      v-for="name in SLOTS"
+      :key="name"
+      :ref="(el) => (slotEls[name] = el)"
+      class="slot"
+      :class="{ 'slot-top': name === 'top' }"
+    >
+      <Transition
+        :name="interrupting ? 'swap' : 'rotate'"
+        mode="out-in"
+        @enter="revive"
+        @leave="retire"
       >
-        <div
-          v-for="name in SLOTS"
-          :key="name"
-          :ref="(el) => (slotEls[name] = el)"
-          class="slot"
-          :class="{ 'slot-top': name === 'top' }"
+        <p
+          v-if="name === 'top' && banner"
+          key="banner"
+          class="comment-text comment-clamp text-fg-muted"
         >
-          <Transition name="rotate" mode="out-in" @enter="revive" @leave="retire">
-            <CommentBubble
-              v-if="slots[name]"
-              :key="slots[name].ID"
-              :comment="slots[name]"
-              :slot-name="name"
-              @tap="(comment, event) => relay('tap', comment, event, name)"
-              @flag="(comment, event) => relay('flag', comment, event, name)"
-            />
-          </Transition>
-        </div>
-      </div>
-    </Transition>
-
-    <Transition name="interrupt" :duration="0" @enter="revive" @leave="retire">
-      <div
-        v-if="display !== 'comment'"
-        :key="current?.ID"
-        class="interrupt-arc absolute inset-0 flex flex-col pt-(--stage-top) px-(--gutter)"
-      >
-        <template v-if="display === 'starter' && current">
-          <div
-            v-for="name in SLOTS"
-            :key="name"
-            class="slot"
-            :class="{ 'slot-top': name === 'top' }"
-          >
-            <p
-              v-if="current.slots[name]"
-              class="comment-text comment-clamp"
-              :lang="current.slots[name].language"
-            >
-              {{ current.slots[name].text }}
-            </p>
-          </div>
-        </template>
-        <template v-else-if="display === 'live' && current">
-          <div class="slot slot-top">
-            <p class="comment-text comment-clamp text-fg-muted">
-              {{ t('main.live_banner') }}
-            </p>
-          </div>
-          <div class="slot">
-            <CommentBubble
-              :comment="current"
-              slot-name="bottom"
-              @flag="(comment, event) => emit('flag', comment, 'bottom', rectOf(event))"
-            />
-          </div>
-        </template>
-      </div>
-    </Transition>
+          {{ t('main.live_banner') }}
+        </p>
+        <CommentBubble
+          v-else-if="slots[name]"
+          :key="slots[name].ID"
+          :comment="slots[name]"
+          :slot-name="name"
+          :tappable="!interrupting"
+          :flaggable="!interrupting"
+          @tap="(comment, event) => relay('tap', comment, event, name)"
+          @flag="(comment, event) => relay('flag', comment, event, name)"
+        />
+      </Transition>
+    </div>
   </section>
 </template>
 
 <style scoped>
-.stage-enter-active {
-  transition: opacity 10s ease;
-}
-
-.stage-leave-active {
-  transition: opacity calc(var(--interrupt-duration, 20s) / 4) ease;
-}
-
-.stage-enter-from,
-.stage-leave-to {
-  opacity: 0;
-}
-
-.rotate-enter-active {
-  transition:
-    opacity 10s ease,
-    filter 10s ease;
-}
-
+.rotate-enter-active,
 .rotate-leave-active {
   transition:
     opacity 10s ease,
@@ -188,21 +131,16 @@ defineExpose({ slotRect })
   filter: blur(8px);
 }
 
-@keyframes interrupt-arc {
-  0%,
-  25% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  75%,
-  100% {
-    opacity: 0;
-  }
+.swap-enter-active,
+.swap-leave-active {
+  transition:
+    opacity var(--interrupt-fade) ease,
+    filter var(--interrupt-fade) ease;
 }
 
-.interrupt-arc {
-  animation: interrupt-arc var(--interrupt-duration, 20s) ease both;
+.swap-enter-from,
+.swap-leave-to {
+  opacity: 0;
+  filter: blur(8px);
 }
 </style>

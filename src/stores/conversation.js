@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { api } from '@/api'
 import { DEFAULT_LOCALE } from '@/i18n/locales'
 import { useLanguageStore } from './language'
@@ -10,20 +10,20 @@ export const otherSlot = (slot) => (slot === 'top' ? 'bottom' : 'top')
 
 const INTERRUPT_TYPES = new Set(['new_comment', 'conversation_starter'])
 
-const DEFAULT_INTERRUPT_SECONDS = 20
+const SWAP_MS = 5000
 
 export const useConversationStore = defineStore('conversation', () => {
   const slots = ref({ top: null, bottom: null })
-  const current = ref(null)
-  const display = ref('comment') // 'comment' | 'starter' | 'live'
+  const banner = ref(false)
   const status = ref('closed') // 'connecting' | 'open' | 'closed'
-  const interruptSeconds = ref(DEFAULT_INTERRUPT_SECONDS)
-
-  const inverted = computed(() => display.value !== 'comment')
+  const inverted = ref(false)
+  const interrupting = ref(false)
 
   const frozen = ref(false)
   let pending = null
   let started = false
+  let interruptID = null
+  let settleTimer = null
 
   function initialize() {
     if (started) return
@@ -39,10 +39,13 @@ export const useConversationStore = defineStore('conversation', () => {
   }
 
   function reset() {
+    clearTimeout(settleTimer)
+    settleTimer = null
+    interruptID = null
     slots.value = { top: null, bottom: null }
-    current.value = null
-    display.value = 'comment'
-    interruptSeconds.value = DEFAULT_INTERRUPT_SECONDS
+    banner.value = false
+    inverted.value = false
+    interrupting.value = false
     pending = null
   }
 
@@ -55,23 +58,48 @@ export const useConversationStore = defineStore('conversation', () => {
     pending = frame
   }
 
-  function apply({ type, payload, display_seconds: seconds }) {
-    if (INTERRUPT_TYPES.has(type) && seconds > 0) interruptSeconds.value = seconds
+  function stopInterrupt() {
+    interruptID = null
+    banner.value = false
+    inverted.value = false
+    if (!interrupting.value) return
+    clearTimeout(settleTimer)
+    settleTimer = setTimeout(() => {
+      interrupting.value = false
+      settleTimer = null
+    }, SWAP_MS)
+  }
+
+  function showInterrupt(ID, pair, withBanner) {
+    clearTimeout(settleTimer)
+    settleTimer = null
+    interruptID = ID
+    interrupting.value = true
+    banner.value = withBanner
+    slots.value = pair
+    inverted.value = true
+  }
+
+  function apply({ type, payload }) {
     switch (type) {
-      case 'comment':
-        slots.value = { ...slots.value, [payload.slot]: payload }
-        display.value = 'comment'
+      case 'comment': {
+        const repeat = interruptID !== null && payload.ID === interruptID
+        const showing = interrupting.value
+        stopInterrupt()
+        const next = { ...slots.value, [payload.slot]: payload }
+        if (repeat && showing) next[otherSlot(payload.slot)] = null
+        slots.value = next
         break
+      }
       case 'new_comment':
-        current.value = payload
-        display.value = 'live'
+        showInterrupt(payload.ID, { top: null, bottom: payload }, true)
         break
       case 'conversation_starter': {
         const { starter, translation } = payload
-        const pair = { [starter.slot]: starter }
+        const pair = { top: null, bottom: null }
+        pair[starter.slot] = starter
         if (translation.language !== starter.language) pair[translation.slot] = translation
-        current.value = { ID: starter.ID, slots: pair }
-        display.value = 'starter'
+        showInterrupt(starter.ID, pair, false)
         break
       }
     }
@@ -98,9 +126,6 @@ export const useConversationStore = defineStore('conversation', () => {
         slots.value = { ...slots.value, [name]: { ...entry, is_flagged: true } }
       }
     }
-    if (current.value?.ID === commentID) {
-      current.value = { ...current.value, is_flagged: true }
-    }
     return true
   }
 
@@ -115,11 +140,10 @@ export const useConversationStore = defineStore('conversation', () => {
 
   return {
     slots,
-    current,
-    display,
+    banner,
     status,
     inverted,
-    interruptSeconds,
+    interrupting,
     frozen,
     initialize,
     freeze,

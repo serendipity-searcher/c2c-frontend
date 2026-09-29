@@ -93,7 +93,8 @@
     --inset-bottom: max(calc(env(safe-area-inset-bottom, 0px) - var(--kb) - var(--kb-shrink)), 0px);
     --font-ui: 'Hanken Grotesk', 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
     --font-comment: 'Bradford LL', Georgia, 'Times New Roman', serif;
-    --invert-duration: 0.8s;
+    --invert-duration: 5s;
+    --interrupt-fade: 5s;
     --invert-transition:
       --bg var(--invert-duration) ease, --fg var(--invert-duration) ease,
       --fg-muted var(--invert-duration) ease, --line var(--invert-duration) ease,
@@ -119,35 +120,6 @@
     --fg-muted: #b8bdb9;
     --line: #5a625f;
     --svg-invert: 1;
-  }
-
-  @keyframes invert-arc {
-    0% {
-      --bg: #ffffff;
-      --fg: #1c1c1c;
-      --fg-muted: #6b6b6b;
-      --line: #d9d9d9;
-      --svg-invert: 0;
-    }
-    25%,
-    75% {
-      --bg: #3f4142;
-      --fg: #f2f2ee;
-      --fg-muted: #b8bdb9;
-      --line: #5a625f;
-      --svg-invert: 1;
-    }
-    100% {
-      --bg: #ffffff;
-      --fg: #1c1c1c;
-      --fg-muted: #6b6b6b;
-      --line: #d9d9d9;
-      --svg-invert: 0;
-    }
-  }
-
-  .app-root.inverted {
-    animation: invert-arc var(--interrupt-duration, 20s) ease both;
   }
 
   *,
@@ -245,11 +217,6 @@
     *::after {
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
-    }
-    .app-root.inverted,
-    .interrupt-arc {
-      animation-duration: var(--interrupt-duration, 20s) !important;
-      animation-timing-function: linear !important;
     }
   }
 }
