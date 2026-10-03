@@ -37,14 +37,14 @@ const { slots } = storeToRefs(useConversationStore())
 <style scoped>
 .rotate-enter-active {
   transition:
-    opacity 10s ease,
-    filter 10s ease;
+    opacity 5s ease,
+    filter 5s ease;
 }
 
 .rotate-leave-active {
   transition:
-    opacity 10s ease,
-    filter 10s ease;
+    opacity 5s ease,
+    filter 5s ease;
 }
 
 .rotate-enter-from,
